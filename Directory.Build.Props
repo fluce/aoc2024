@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup Condition="'$(CommonLib)'==''">
+    <ProjectReference Include="..\lib\lib.csproj" />    
+    <Using Include="lib" />
+  </ItemGroup>
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup
+  >
+</Project>
