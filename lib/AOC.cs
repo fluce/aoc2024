@@ -52,6 +52,21 @@ public static class AOC
     {
         return string.Join(separator, items.Select(x => selector?.Invoke(x) ?? x?.ToString() ?? "null"));
     }
+
+    public static (int X, int Y) Find<T>(this T[][] data, Func<T, bool> predicate)
+    {
+        for (int y = 0; y < data.Length; y++)
+        {
+            for (int x = 0; x < data[y].Length; x++)
+            {
+                if (predicate(data[y][x]))
+                {
+                    return (x, y);
+                }
+            }
+        }
+        return (-1, -1);
+    }
 }
 
 internal class AOCMarker {}
