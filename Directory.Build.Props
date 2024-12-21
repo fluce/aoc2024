@@ -2,6 +2,7 @@
   <ItemGroup Condition="'$(CommonLib)'==''">
     <ProjectReference Include="..\lib\lib.csproj" />    
     <Using Include="lib" />
+    <Using Include="System.Text.RegularExpressions"/>
   </ItemGroup>
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
