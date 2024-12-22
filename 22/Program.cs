@@ -20,17 +20,27 @@ sbyte[] maxDeltas=new sbyte[4];
 int maxBananas=0;
 var maxIter=19L*19*19*19;
 var iter=0L;
-var skippedPrefixes=new HashSet<sbyte[]>();
+List<int>[,] containsPrefixes=new List<int>[19,19];
+Console.WriteLine("Precalculating skipped prefixes");
 for (sbyte i0=-9;i0<10;i0++)
 {
     targetDeltas[0]=i0;
     for (sbyte i1=-9;i1<10;i1++)
     {
         sbyte[] prefix=[i0,i1];
-        if (skippedPrefixes.Contains(prefix)) continue;
-        var filteredData=data.Where(x=>HasPrefix2(x,2000,prefix)).ToArray();
-        if (filteredData.Length==0) {
-            skippedPrefixes.Add(prefix);
+        var filteredData=data.Where(x=>HasPrefix2(x,2000,prefix)).ToList();
+        containsPrefixes[i0+9,i1+9]=filteredData;
+    }
+}
+Console.WriteLine("Starting main loop");
+for (sbyte i0=-9;i0<10;i0++)
+{
+    targetDeltas[0]=i0;
+    for (sbyte i1=-9;i1<10;i1++)
+    {
+        sbyte[] prefix=[i0,i1];
+        var filteredData=containsPrefixes[i0+9,i1+9];
+        if (filteredData.Count==0) {
             continue;
         }
         targetDeltas[1]=i1;
@@ -38,17 +48,17 @@ for (sbyte i0=-9;i0<10;i0++)
         {
             sbyte[] prefix3=[i0,i1,i2];
             sbyte[] prefix32=[i1,i2];
-            if (skippedPrefixes.Contains(prefix32)) continue;
-            var filteredData2=filteredData.Where(x=>HasPrefix3(x,2000,prefix3)).ToArray();
-            if (filteredData2.Length==0) continue;
+            var filteredData2=containsPrefixes[i1+9,i2+9].Intersect(filteredData).ToList();
+            if (filteredData2.Count==0) continue;
             targetDeltas[2]=i2;
             for (sbyte i3=-9;i3<10;i3++)
             {
                 sbyte[] prefix42=[i2,i3];
-                if (skippedPrefixes.Contains(prefix42)) continue;
+                var filteredData3=containsPrefixes[i2+9,i3+9].Intersect(filteredData2).ToList();
+                if (filteredData3.Count==0) continue;
                 targetDeltas[3]=i3;
                 iter++;
-                var bananas=filteredData2.Sum(x=>TransformLoopPart2(x,2000,targetDeltas));
+                var bananas=filteredData3.Sum(x=>TransformLoopPart2(x,2000,targetDeltas));
                 //Console.WriteLine($"{100L*iter/maxIter} {filteredData2.Length} {bananas} ({maxBananas}): {targetDeltas.AsString()}");
                 if (bananas>maxBananas)
                 {
