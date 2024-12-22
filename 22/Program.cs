@@ -3,8 +3,8 @@
 int[] test=[1,2,3,2024];
 
 var data=s.Where(x=>x.Length>0).Select(x=>int.Parse(x)).ToArray();
-Console.WriteLine($"length: {data.Length}");
 //data=test;
+Console.WriteLine($"length: {data.Length}");
 /*foreach (var item in test)
 {
     Console.WriteLine($"{item}: {TransformLoop(item,2000)}");
@@ -15,7 +15,6 @@ Console.WriteLine(sum);
 
 Console.WriteLine(TransformLoopPart2(123,10,[-1,-1,0,2]));
 
-sbyte[] targetDeltas=new sbyte[4];
 sbyte[] maxDeltas=new sbyte[4];
 int maxBananas=0;
 var maxIter=19L*19*19*19;
@@ -24,7 +23,6 @@ List<int>[,] containsPrefixes=new List<int>[19,19];
 Console.WriteLine("Precalculating skipped prefixes");
 for (sbyte i0=-9;i0<10;i0++)
 {
-    targetDeltas[0]=i0;
     for (sbyte i1=-9;i1<10;i1++)
     {
         sbyte[] prefix=[i0,i1];
@@ -33,8 +31,11 @@ for (sbyte i0=-9;i0<10;i0++)
     }
 }
 Console.WriteLine("Starting main loop");
-for (sbyte i0=-9;i0<10;i0++)
+var _lock=new object();
+Parallel.ForEach(Enumerable.Range(-9,19),i=>
 {
+    sbyte[] targetDeltas=new sbyte[4];
+    sbyte i0=(sbyte)i;  
     targetDeltas[0]=i0;
     for (sbyte i1=-9;i1<10;i1++)
     {
@@ -62,14 +63,19 @@ for (sbyte i0=-9;i0<10;i0++)
                 //Console.WriteLine($"{100L*iter/maxIter} {filteredData2.Length} {bananas} ({maxBananas}): {targetDeltas.AsString()}");
                 if (bananas>maxBananas)
                 {
-                    maxBananas=bananas;
-                    maxDeltas=targetDeltas.ToArray();
-                    Console.WriteLine($"{100L*iter/maxIter} {maxBananas}: {targetDeltas.AsString()}");
+                    lock(_lock) {
+                        if (bananas>maxBananas)
+                        {
+                            maxBananas=bananas;
+                            maxDeltas=targetDeltas.ToArray();
+                            Console.WriteLine($"{100L*iter/maxIter} {maxBananas}: {targetDeltas.AsString()}");
+                        }
+                    }
                 }
             }
         }
     }
-}
+});
 Console.WriteLine($"{maxBananas}: {maxDeltas.AsString()}");
 
 bool HasPrefix2(int input, int count, sbyte[] targetDeltas)
@@ -128,7 +134,7 @@ int TransformLoopPart2(int input, int count, sbyte[] targetDeltas)
         deltas[1]=deltas[2];
         deltas[2]=deltas[3];
         deltas[3]=delta;
-        if (deltas.SequenceEqual(targetDeltas))
+        if (i>=3 && deltas.AsSpan().SequenceEqual(targetDeltas))
         {
             //Console.WriteLine($"Found at {i}");
             return price;
