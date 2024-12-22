@@ -162,7 +162,9 @@ public static class AOC
         }        
     }
 
-    public static List<(N Node,C Cost)> ApplyAStar<N,C>(N start, N goal, Func<N,IEnumerable<N>> getNeighbours, Func<N,N,C> getCost, Func<N,N,C> getHeuristic, Func<N,N,bool> isGoal) where N: notnull where C: struct,IComparable<C>,ISignedNumber<C>, IEquatable<C>
+    public static List<(N Node,C Cost)> ApplyAStar<N,C>(N start, N goal, Func<N,IEnumerable<N>> getNeighbours, Func<N,N,C> getCost, Func<N,N,C> getHeuristic, Func<N,N,bool> isGoal) 
+        where N: notnull,IEquatable<N> 
+        where C: struct,IComparable<C>,ISignedNumber<C>, IEquatable<C>
     {
         var closedSet=new HashSet<N>();
         var openSet=new PriorityQueue<N,C>();
@@ -179,7 +181,7 @@ public static class AOC
             if (isGoal(current,goal))
             {
                 var result=new List<(N,C)>();
-                while(current!=null)
+                while(!current.Equals(default(N)))
                 {
                     var prev=cameFrom.GetValueOrDefault(current);
                     result.Add((current, gScore[current]));
